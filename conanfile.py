@@ -48,12 +48,13 @@ class GdalConan(ConanFile):
             config_args += [
                 "--without-ld-shared", "--disable-shared", "--enable-static",
             ]
-        config_args += ["--with-static-proj4="+self.deps_cpp_info["proj"].rootpath]
-        config_args += ["--with-geos"]
+        config_args += ["--with-proj="+self.deps_cpp_info["proj"].rootpath]
+        config_args += ["--without-geos"]
         config_args += ["--with-geotiff=internal"]
         config_args += ["--with-hide-internal-symbols"]
         config_args += ["--with-libtiff=internal"]
         config_args += ["--with-libz=internal"]
+        config_args += ["--with-libjson-c=internal"]
         config_args += ["--with-threads"]
         config_args += ["--without-bsb"]
         config_args += ["--without-cfitsio"]
@@ -94,6 +95,7 @@ class GdalConan(ConanFile):
         config_args += ["--without-png"]
         config_args += ["--without-python"]
         config_args += ["--without-qhull"]
+        config_args += ["--without-sfcgal"]
         config_args += ["--without-sde"]
         config_args += ["--without-sqlite3"]
         config_args += ["--without-webp"]
@@ -101,6 +103,7 @@ class GdalConan(ConanFile):
         config_args += ["--without-xml2"]
         config_args += ["--without-crypto"]
         config_args += ["--without-kea"]
+        config_args += ["--without-zstd"]
 
         autotools = AutoToolsBuildEnvironment(self)
         with tools.chdir(self._folder):
