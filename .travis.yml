@@ -1,75 +1,40 @@
 env:
-  global:
-    - CONAN_REFERENCE: "GDAL/2.1.3"
-    - CONAN_USERNAME: "osechet"
-    - CONAN_LOGIN_USERNAME: "osechet"
-    - CONAN_CHANNEL: "testing"
-    - CONAN_TOTAL_PAGES: 4
-    - CONAN_UPLOAD: "https://api.bintray.com/conan/osechet/public-conan"
+   global:
+      - CONAN_REFERENCE: "gdal/2.4.1"
+      - CONAN_USERNAME: "CHM"
+      - CONAN_LOGIN_USERNAME: "chrismarsh"
+      - CONAN_CHANNEL: "stable"
+      - CONAN_UPLOAD: "https://api.bintray.com/conan/chrismarsh/CHM"
+      - MAKEFLAGS: "-j 2"
+
 
 linux: &linux
-  os: linux
-  dist: xenial
-  sudo: required
-  language: python
-  python: "3.6"
-  services:
-    - docker
+   os: linux
+   dist: xenial
+   language: python
+   python: "3.7"
+   services:
+      - docker
 osx: &osx
-  os: osx
-  language: generic
+   os: osx
+   language: generic
 matrix:
-  include:
-
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=1
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=2
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=3
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=4
-
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=1
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=2
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=3
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=4
-
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=1
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=2
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=3
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=4
-
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=1
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=2
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=3
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=4
-
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=1
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=2
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=3
-    - <<: *linux
-      env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=4
+   include:
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE="gcc_shared"
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE="gcc_static"
+      - <<: *osx
+        osx_image: xcode11.2
+        env: CONAN_APPLE_CLANG_VERSIONS=11.0 CONAN_CURRENT_PAGE="apple-clang_static"
+      - <<: *osx
+        osx_image: xcode11.2
+        env: CONAN_APPLE_CLANG_VERSIONS=11.0 CONAN_CURRENT_PAGE="apple-clang_shared"
 
 install:
-  - chmod +x .travis/install.sh
-  - ./.travis/install.sh
+   - chmod +x .travis/install.sh
+   - ./.travis/install.sh
 
 script:
-  - chmod +x .travis/run.sh
-  - ./.travis/run.sh
+   - chmod +x .travis/run.sh
+   - ./.travis/run.sh
