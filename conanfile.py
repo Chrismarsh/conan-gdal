@@ -111,8 +111,6 @@ class GdalConan(ConanFile):
             autotools.make()
             autotools.install()
 
-        self.run("cp %s/FindGDAL.cmake %s/" % (self.source_folder, self.package_folder))
-
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]
