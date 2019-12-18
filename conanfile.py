@@ -17,7 +17,7 @@ class GdalConan(ConanFile):
 
     
 
-    exports = ["LICENSE.md", "FindGDAL.cmake"]
+    exports = ["LICENSE.md"]
 
     _folder = "gdal-%s" % version
 

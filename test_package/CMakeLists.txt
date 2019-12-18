@@ -1,14 +1,18 @@
 project(helloworld)
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.15)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
-
-find_package(GDAL REQUIRED)
+find_package(gdal REQUIRED)
 
 add_executable(helloworld main.cpp)
 
 target_link_libraries(helloworld
     PUBLIC
-    GDAL::GDAL
+    gdal::gdal
 )
+
+set_target_properties(helloworld
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
