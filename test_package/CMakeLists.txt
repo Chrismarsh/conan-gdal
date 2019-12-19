@@ -7,8 +7,8 @@ find_package(gdal REQUIRED)
 
 add_executable(helloworld main.cpp)
 
-target_link_libraries(helloworld ${CMAKE_DL_LIBS} #https://bl.ocks.org/kwk/3595733
-    PUBLIC
+target_link_libraries(helloworld PUBLIC ${CMAKE_DL_LIBS} #https://bl.ocks.org/kwk/3595733
+    
     gdal::gdal
 )
 
