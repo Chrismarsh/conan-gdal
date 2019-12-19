@@ -25,6 +25,7 @@ class GdalConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2]")
         self.requires("proj/[>=4 <5]@CHM/stable")
+        self.requires("libiconv/1.15")
         # if not self.options.shared:
         #     self.requires("sqlite3/3.27.1@bincrafters/stable", private=False, override=False)
 
