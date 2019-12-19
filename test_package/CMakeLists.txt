@@ -9,7 +9,7 @@ find_package(gdal REQUIRED)
 add_executable(helloworld main.cpp)
 
 message(STATUS "DL libs=${CMAKE_DL_LIBS}")
-target_link_libraries(helloworld ${CMAKE_DL_LIBS} libiconv::libiconv gdal::gdal) #https://bl.ocks.org/kwk/3595733
+target_link_libraries(helloworld gdal::gdal ${CMAKE_DL_LIBS}) #https://bl.ocks.org/kwk/3595733
     
 set_target_properties(helloworld
     PROPERTIES
