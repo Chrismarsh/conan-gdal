@@ -37,6 +37,9 @@ class GdalConan(ConanFile):
         download(src_url, archive_name)
         unzip(archive_name)
         os.unlink(archive_name)
+
+        tools.replace_in_file("%s/configure", r"-install_name \$rpath/", "-install_name @rpath/" % self._folder)
+
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self._folder)
 
