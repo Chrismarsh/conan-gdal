@@ -1,5 +1,6 @@
 
 import os
+from fnmatch import fnmatch
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
 from conans.tools import download, unzip
 
@@ -39,6 +40,7 @@ class GdalConan(ConanFile):
         os.unlink(archive_name)
 
         tools.replace_in_file("%s/configure" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
+        tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
 
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self._folder)
@@ -114,6 +116,16 @@ class GdalConan(ConanFile):
             autotools.configure(args=config_args)
             autotools.make()
             autotools.install()
+
+        if tools.os_info.is_macos:
+            for path, subdirs, names in os.walk(os.path.join(self.package_folder, 'lib')):
+                for name in names:
+                    if fnmatch(name, '*.dylib*'):
+                        so_file = os.path.join(path, name)
+
+                        cmd = "install_name_tool -id @rpath/{0} {1}".format(name, so_file)
+                        os.system(cmd)
+
 
 
     def package_info(self):
