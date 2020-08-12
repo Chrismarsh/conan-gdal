@@ -13,8 +13,14 @@ class GdalConan(ConanFile):
     url = "http://www.gdal.org/"
     license = "LGPL"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False]}
-    default_options = {"shared": True}
+    
+    options = {"shared": [True, False], 
+               "libcurl": [True, False],
+               "netcdf": [True, False] }
+    
+    default_options = {"shared": True,
+     "libcurl": False, 
+     "netcdf": False}
 
     
 
@@ -27,6 +33,13 @@ class GdalConan(ConanFile):
         self.requires("zlib/[>=1.2]")
         self.requires("proj/[>=4 <5]@CHM/stable")
         self.requires("libiconv/1.15")
+
+        if self.options.libcurl:
+            self.requires("libcurl/[>=7.70.0]")
+
+        if self.options.netcdf:
+            self.requires("netcdf-c/4.6.2@CHM/stable")
+
         # if not self.options.shared:
         #     self.requires("sqlite3/3.27.1@bincrafters/stable", private=False, override=False)
 
@@ -54,6 +67,12 @@ class GdalConan(ConanFile):
             config_args += [
                 "--without-ld-shared", "--disable-shared", "--enable-static",
             ]
+
+        if self.options.libcurl:
+                    config_args += ["--with-curl="+self.deps_cpp_info["libcurl"].rootpath+'/bin/curl-config']
+        else:
+                    config_args += ["--without-curl"]
+
         config_args += ["--with-proj="+self.deps_cpp_info["proj"].rootpath]
         config_args += ["--without-geos"]
         config_args += ["--with-geotiff=internal"]
@@ -65,7 +84,6 @@ class GdalConan(ConanFile):
         config_args += ["--without-bsb"]
         config_args += ["--without-cfitsio"]
         config_args += ["--without-cryptopp"]
-        config_args += ["--without-curl"]
         config_args += ["--without-ecw"]
         config_args += ["--without-expat"]
         config_args += ["--without-fme"]
@@ -89,7 +107,12 @@ class GdalConan(ConanFile):
         config_args += ["--without-mrf"]
         config_args += ["--without-mrsid"]
         config_args += ["--without-mysql"]
-        config_args += ["--without-netcdf"]
+
+        if self.options.netcdf:
+            config_args += ["--with-netcdf=" + self.deps_cpp_info["netcdf-c"].rootpath]
+        else:
+            config_args += ["--without-netcdf"]
+        
         config_args += ["--without-odbc"]
         config_args += ["--without-ogdi"]
         config_args += ["--without-openjpeg"]
