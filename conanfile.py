@@ -1,7 +1,7 @@
 
 import os
 from fnmatch import fnmatch
-from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conans import ConanFile, AutoToolsBuildEnvironment, tools, RunEnvironment
 from conans.tools import download, unzip
 
 class GdalConan(ConanFile):
@@ -23,7 +23,7 @@ class GdalConan(ConanFile):
      "netcdf": False}
 
     
-
+    exports_sources = ['patches/*']
     exports = ["LICENSE.md"]
 
     _folder = "gdal-%s" % version
@@ -109,7 +109,7 @@ class GdalConan(ConanFile):
         config_args += ["--without-mysql"]
 
         if self.options.netcdf:
-            config_args += ["--with-netcdf=" + self.deps_cpp_info["netcdf-c"].rootpath]
+            config_args += ["--with-netcdf=" + self.deps_cpp_info["netcdf-c"].rootpath ]
         else:
             config_args += ["--without-netcdf"]
         
@@ -134,11 +134,23 @@ class GdalConan(ConanFile):
         config_args += ["--without-kea"]
         config_args += ["--without-zstd"]
 
-        autotools = AutoToolsBuildEnvironment(self)
         with tools.chdir(self._folder):
-            autotools.configure(args=config_args)
-            autotools.make()
-            autotools.install()
+
+            run_str = './configure ' + ' '.join(config_args)
+            
+
+            self.run(run_str, run_environment=True)
+            self.run('make', run_environment=True)
+            self.run('make install', run_environment=True)
+
+            # env_build = RunEnvironment(self)
+            # with tools.environment_append(env_build.vars):
+
+            #     autotools = AutoToolsBuildEnvironment(self)
+                
+            #         autotools.configure(args=config_args)
+            #         autotools.make()
+            #         autotools.install()
 
         if tools.os_info.is_macos:
             for path, subdirs, names in os.walk(os.path.join(self.package_folder, 'lib')):
