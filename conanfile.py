@@ -134,14 +134,17 @@ class GdalConan(ConanFile):
         config_args += ["--without-kea"]
         config_args += ["--without-zstd"]
 
+        run_str = './configure ' + ' '.join(config_args)
+        run_str += ' --prefix ' + self.package_folder
+
         with tools.chdir(self._folder):
+            env_build = AutoToolsBuildEnvironment(self)
+            with tools.environment_append(env_build.vars):
+        
 
-            run_str = './configure ' + ' '.join(config_args)
-            
-
-            self.run(run_str, run_environment=True)
-            self.run('make', run_environment=True)
-            self.run('make install', run_environment=True)
+                self.run(run_str, run_environment=True)
+                self.run('make -j', run_environment=True)
+                self.run('make install', run_environment=True)
 
             # env_build = RunEnvironment(self)
             # with tools.environment_append(env_build.vars):
