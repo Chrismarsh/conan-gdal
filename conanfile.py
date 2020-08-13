@@ -1,8 +1,14 @@
-
+from __future__ import print_function
 import os
 from fnmatch import fnmatch
 from conans import ConanFile, AutoToolsBuildEnvironment, tools, RunEnvironment
 from conans.tools import download, unzip
+
+
+import sys
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 class GdalConan(ConanFile):
     """ Conan package for GDAL """
@@ -52,11 +58,36 @@ class GdalConan(ConanFile):
         unzip(archive_name)
         os.unlink(archive_name)
 
-        tools.replace_in_file("%s/configure" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
-        tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
+        if tools.os_info.is_macos:
+            tools.replace_in_file("%s/configure" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
+            tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
 
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self._folder)
+
+
+        # Work around this sillyness on macos. Tldr of the problem is that unless the install_name of the dylib is the full conan path
+        # any child process run from configure won't be able to find it as DYLIB paths aren't passed in as per
+        # https://stackoverflow.com/questions/35568122/why-isnt-dyld-library-path-being-propagated-here
+        # and the conan RunEnv is not enough on macos
+        # https://docs.conan.io/en/latest/reference/build_helpers/run_environment.html
+        # so the work around is to embed all the conan library paths into the rpath of the test executables configure makes 
+        if tools.os_info.is_macos:
+            env_build = RunEnvironment(self)
+            with tools.environment_append(env_build.vars):   
+       
+                rpath='-Wl,-rpath '
+                try:
+                    envar = os.environ['DYLD_LIBRARY_PATH']
+                    rpath += envar 
+                except:
+                    pass
+                rpath = rpath.replace(':',' -Wl,-rpath ')
+
+              
+                tools.replace_in_file("%s/configure" % (self._folder), 
+                        """ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'""",
+                        """ac_link='$CC  -o conftest$ac_exeext $CFLAGS $CPPFLAGS %s $LDFLAGS conftest.$ac_ext $LIBS >&5'"""% (rpath))
 
 
     def build(self):
@@ -137,24 +168,19 @@ class GdalConan(ConanFile):
         run_str = './configure ' + ' '.join(config_args)
         run_str += ' --prefix ' + self.package_folder
 
+
+
         with tools.chdir(self._folder):
             env_build = AutoToolsBuildEnvironment(self)
             with tools.environment_append(env_build.vars):
-        
 
+                # use these such that on linux we correctly pass through the LD_LIBRARY_PATH to the child test exes
                 self.run(run_str, run_environment=True)
                 self.run('make -j', run_environment=True)
                 self.run('make install', run_environment=True)
 
-            # env_build = RunEnvironment(self)
-            # with tools.environment_append(env_build.vars):
 
-            #     autotools = AutoToolsBuildEnvironment(self)
-                
-            #         autotools.configure(args=config_args)
-            #         autotools.make()
-            #         autotools.install()
-
+        # strip any hard coded install_name from the dylibs to simplify downstream use
         if tools.os_info.is_macos:
             for path, subdirs, names in os.walk(os.path.join(self.package_folder, 'lib')):
                 for name in names:
