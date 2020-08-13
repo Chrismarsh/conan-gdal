@@ -6,7 +6,7 @@ if __name__ == "__main__":
                                 archs=["x86_64"],
                                 build_types=["Release"])
                               
-    builder.add_common_builds(pure_c=False,shared_option_name="gdal:shared")
+    builder.add_common_builds(pure_c=False,shared_option_name="gdal:shared", build_all_options_values=["gdal:libcurl", "gdal:netcdf"])
 
     builder.remove_build_if(lambda build: build.settings["compiler.libcxx"] == "libstdc++")
 
