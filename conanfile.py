@@ -176,7 +176,7 @@ class GdalConan(ConanFile):
 
                 # use these such that on linux we correctly pass through the LD_LIBRARY_PATH to the child test exes
                 self.run(run_str, run_environment=True)
-                self.run('make -j', run_environment=True)
+                self.run('make', run_environment=True)
                 self.run('make install', run_environment=True)
 
 
