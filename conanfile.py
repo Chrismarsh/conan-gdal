@@ -62,6 +62,8 @@ class GdalConan(ConanFile):
             tools.replace_in_file("%s/configure" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
             tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
 
+        tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r":,enable_rpath=yes)", "enable_rpath=no,enable_rpath=yes)")
+
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self._folder)
 
@@ -100,7 +102,7 @@ class GdalConan(ConanFile):
             ]
 
         config_args += ['--disable-rpath']
-        
+
         if self.options.libcurl:
                     config_args += ["--with-curl="+self.deps_cpp_info["libcurl"].rootpath+'/bin/curl-config']
         else:
