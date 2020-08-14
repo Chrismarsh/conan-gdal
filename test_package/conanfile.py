@@ -6,7 +6,7 @@ class GdalTestConan(ConanFile):
     """ GDAL Conan package test """
 
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake_find_package"
+    generators = "cmake"
 
     def build(self):
         cmake = CMake(self)

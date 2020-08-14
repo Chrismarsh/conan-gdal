@@ -18,7 +18,9 @@ if __name__ == "__main__":
         if not options['gdal:shared']:
             shared = "static" 
 
-        named_builds[settings['compiler'] +"_"+shared].append([settings, options, env_vars, build_requires, reference])
+        name = f'{settings['compiler']}_{shared}_libcurl-{options['gdal:libcurl']}_netcdf-{options['gdal:netcdf']}'
+
+        named_builds[name].append([settings, options, env_vars, build_requires, reference])
 
     builder.named_builds = named_builds
 
