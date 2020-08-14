@@ -99,6 +99,8 @@ class GdalConan(ConanFile):
                 "--without-ld-shared", "--disable-shared", "--enable-static",
             ]
 
+        config_args += ['--disable-rpath']
+        
         if self.options.libcurl:
                     config_args += ["--with-curl="+self.deps_cpp_info["libcurl"].rootpath+'/bin/curl-config']
         else:
