@@ -24,4 +24,7 @@ class GdalTestConan(ConanFile):
         cmake.build()
 
     def test(self):
+        self.run(' ls -l')
+        self.run(' ldd bin/helloworld')
+
         self.run("%s %s" % (os.sep.join([".", "bin", "helloworld"]), "conan"))

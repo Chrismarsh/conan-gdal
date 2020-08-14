@@ -22,7 +22,7 @@ if __name__ == "__main__":
         options["gdal:netcdf"]=True
         # name = f'{settings['compiler']}_{shared}_libcurl-{options['gdal:libcurl']}_netcdf-{options['gdal:netcdf']}'
 
-        named_builds[settings['compiler']+f'_{shared}'].append([settings, options, env_vars, build_requires, reference])
+        named_builds[settings['compiler']+'_'+shared].append([settings, options, env_vars, build_requires, reference])
 
     builder.named_builds = named_builds
 
