@@ -62,7 +62,18 @@ class GdalConan(ConanFile):
             tools.replace_in_file("%s/configure" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
             tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
 
-        tools.replace_in_file("%s/m4/lib-link.m4" % self._folder, r"    :, enable_rpath=yes)", "    enable_rpath=no,enable_rpath=yes)")
+        # tools.replace_in_file("%s/m4/lib-link.m4" % self._folder, r"    :, enable_rpath=yes)", "    enable_rpath=no,enable_rpath=yes)")
+
+#         tools.replace_in_file("%s/m4/lib-link.m4" % self._folder, """AC_ARG_ENABLE(rpath,
+#     [  --disable-rpath         do not hardcode runtime library paths],
+#     enable_rpath=no,enable_rpath=yes)"""
+#     , """AC_MSG_CHECKING(whether to use rpath)
+# AC_ARG_ENABLE(rpath,
+#     [AC_HELP_STRING([--disable-rpath],
+#             [do not hardcode runtime library paths.])],
+#     enable_rpath="$enableval", enable_rpath="yes")
+# AC_MSG_RESULT($enable_rpath)"""
+# )
 
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self._folder)
@@ -101,7 +112,7 @@ class GdalConan(ConanFile):
                 "--without-ld-shared", "--disable-shared", "--enable-static",
             ]
 
-        config_args += ['--disable-rpath']
+        config_args += ['--enable-rpath']
 
         if self.options.libcurl:
                     config_args += ["--with-curl="+self.deps_cpp_info["libcurl"].rootpath+'/bin/curl-config']
