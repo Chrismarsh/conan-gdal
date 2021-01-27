@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 from fnmatch import fnmatch
+from conans.model.version import Version
 from conans import ConanFile, AutoToolsBuildEnvironment, tools, RunEnvironment
 from conans.tools import download, unzip
 
@@ -14,7 +15,6 @@ class GdalConan(ConanFile):
     """ Conan package for GDAL """
 
     name = "gdal"
-    version = "2.4.1"
     description = "GDAL - Geospatial Data Abstraction Library"
     url = "http://www.gdal.org/"
     license = "LGPL"
@@ -32,12 +32,19 @@ class GdalConan(ConanFile):
     exports_sources = ['patches/*']
     exports = ["LICENSE.md"]
 
-    _folder = "gdal-%s" % version
+    _folder = ""
 
 
     def requirements(self):
         self.requires("zlib/[>=1.2]")
-        self.requires("proj/[>=4 <5]@CHM/stable")
+
+        v = Version(self.version)
+
+        if v < "3":
+            self.requires("proj/[>=4 <5]@CHM/stable")
+        else:
+            self.requires("proj/[>=7]@CHM/dev")
+
         self.requires("libiconv/1.15")
 
         if self.options.libcurl:
@@ -51,29 +58,12 @@ class GdalConan(ConanFile):
 
 
     def source(self):
-        archive_name = "gdal-%s.tar.gz" % self.version
-        src_url = "http://download.osgeo.org/gdal/%s/%s" % (self.version, archive_name)
-
-        download(src_url, archive_name)
-        unzip(archive_name)
-        os.unlink(archive_name)
+        tools.get(**self.conan_data["sources"][self.version])
+        self._folder = "gdal-%s" % self.version
 
         if tools.os_info.is_macos:
             tools.replace_in_file("%s/configure" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
             tools.replace_in_file("%s/m4/libtool.m4" % self._folder, r"-install_name \$rpath/", "-install_name @rpath/")
-
-        # tools.replace_in_file("%s/m4/lib-link.m4" % self._folder, r"    :, enable_rpath=yes)", "    enable_rpath=no,enable_rpath=yes)")
-
-#         tools.replace_in_file("%s/m4/lib-link.m4" % self._folder, """AC_ARG_ENABLE(rpath,
-#     [  --disable-rpath         do not hardcode runtime library paths],
-#     enable_rpath=no,enable_rpath=yes)"""
-#     , """AC_MSG_CHECKING(whether to use rpath)
-# AC_ARG_ENABLE(rpath,
-#     [AC_HELP_STRING([--disable-rpath],
-#             [do not hardcode runtime library paths.])],
-#     enable_rpath="$enableval", enable_rpath="yes")
-# AC_MSG_RESULT($enable_rpath)"""
-# )
 
         if self.settings.os != "Windows":
             self.run("chmod +x ./%s/configure" % self._folder)
@@ -145,7 +135,8 @@ class GdalConan(ConanFile):
         config_args += ["--without-ingres"]
         config_args += ["--without-jasper"]
         config_args += ["--without-jp2mrsid"]
-        config_args += ["--without-jpeg"]
+        config_args += ["--with-jpeg=internal"]
+        config_args += ["--without-jpeg12"]
         config_args += ["--without-kakadu"]
         config_args += ["--without-libgrass"]
         config_args += ["--without-libkml"]
@@ -167,7 +158,7 @@ class GdalConan(ConanFile):
         config_args += ["--without-pcre"]
         config_args += ["--without-perl"]
         config_args += ["--without-pg"]
-        config_args += ["--without-png"]
+        config_args += ["--with-png=internal"]
         config_args += ["--without-python"]
         config_args += ["--without-qhull"]
         config_args += ["--without-sfcgal"]
@@ -191,7 +182,7 @@ class GdalConan(ConanFile):
 
                 # use these such that on linux we correctly pass through the LD_LIBRARY_PATH to the child test exes
                 self.run(run_str, run_environment=True)
-                self.run('make -j2', run_environment=True)
+                self.run('make -j6', run_environment=True)
                 self.run('make install', run_environment=True)
 
 
