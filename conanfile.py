@@ -43,7 +43,7 @@ class GdalConan(ConanFile):
         if v < "3":
             self.requires("proj/[>=4 <5]@CHM/stable")
         else:
-            self.requires("proj/[>=7]@CHM/dev")
+            self.requires("proj/[>=7]@CHM/stable")
 
         self.requires("libiconv/1.15")
 
