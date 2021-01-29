@@ -51,7 +51,7 @@ class GdalConan(ConanFile):
             self.requires("libcurl/[>=7.70.0]")
 
         if self.options.netcdf:
-            self.requires("netcdf-c/4.6.2@CHM/stable")
+            self.requires("netcdf-c/[>=4.6]@CHM/stable")
 
         # if not self.options.shared:
         #     self.requires("sqlite3/3.27.1@bincrafters/stable", private=False, override=False)

@@ -14,7 +14,6 @@ on:
   workflow_dispatch:
 
 env:
-  CONAN_REFERENCE: gdal/3.2.1
   CONAN_USERNAME: CHM
   CONAN_CHANNEL: stable
   CONAN_UPLOAD: "https://api.bintray.com/conan/chrismarsh/CHM"
@@ -22,78 +21,61 @@ env:
   CONAN_PASSWORD: ${{ secrets.CONAN_PASSWORD }}
   CONAN_STABLE_BRANCH_PATTERN: "stable/*"
   CONAN_UPLOAD_ONLY_WHEN_STABLE: "1"
+  MAKEFLAGS: "-j2"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build-linux:
+  build:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.cfg.os }}
     
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.8]
-        os: [ubuntu-latest]
-        gcc: [7,8,9]
+        cfg:
+          - {os: "ubuntu-latest", compiler: "gcc", version: 7}
+          - {os: "ubuntu-latest", compiler: "gcc", version: 8}
+          - {os: "ubuntu-latest", compiler: "gcc", version: 9}
+          - {os: "macos-latest", compiler: "apple-clang", version: "12.0"}
+        lib-version: ["3.2.1"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: list gcc
-        run: |
-          gcc --version
-          gcc-7 --version
-          gcc-8 --version
-          gcc-9 --version
+      
       - name: Install dependencies
         run: |
           pip install conan --upgrade
           pip install conan_package_tools
-          # sudo apt-get install libcurl4-openssl-dev
-      - name: Build
-        run: |
-          python build.py
-        env:
-          CONAN_CURRENT_PAGE: gcc_shared
-          CONAN_GCC_VERSIONS: ${{ matrix.gcc }}
-          CC: gcc-${{ matrix.gcc }}
-          CXX: g++-${{ matrix.gcc }}
-
-
-  build-macs:
-    # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        python-version: [3.8]
-        os: [macos-latest]
-        apple-clang: ["12.0"]
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      - name: list clang
-        run: |
-          clang --version
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+          
+      - name: env linux
+        if: ${{ matrix.cfg.os  == 'ubuntu-latest' }}
+        uses: allenevans/set-env@v2.0.0
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          pip install conan --upgrade
-          pip install conan_package_tools
+          CONAN_GCC_VERSIONS: ${{ matrix.cfg.version }}
+          CC: gcc-${{ matrix.cfg.version }}
+          CXX: g++-${{ matrix.cfg.version }}
+
+      - name: env macos
+        if: ${{ matrix.cfg.os  == 'macos-latest' }}
+        uses: allenevans/set-env@v2.0.0
+        with:
+          CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.cfg.version }}
+
       - name: Build
         run: |
           python build.py
         env:
-          CONAN_CURRENT_PAGE: apple-clang_shared
-          CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.apple-clang }}
+          CONAN_CURRENT_PAGE: ${{matrix.cfg.compiler}}_shared
+          CONAN_REFERENCE: gdal/${{ matrix.lib-version}}
+
+
 
