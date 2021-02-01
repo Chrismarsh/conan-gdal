@@ -33,6 +33,7 @@ class GdalConan(ConanFile):
     exports = ["LICENSE.md"]
 
     _folder = ""
+    _env_build = None
 
 
     def requirements(self):
@@ -177,13 +178,13 @@ class GdalConan(ConanFile):
 
 
         with tools.chdir(self._folder):
-            env_build = AutoToolsBuildEnvironment(self)
-            with tools.environment_append(env_build.vars):
+            self.env_build = AutoToolsBuildEnvironment(self)
+            with tools.environment_append(self.env_build.vars):
 
                 # use these such that on linux we correctly pass through the LD_LIBRARY_PATH to the child test exes
                 self.run(run_str, run_environment=True)
                 self.run('make -j6', run_environment=True)
-                self.run('make install', run_environment=True)
+                
 
 
         # strip any hard coded install_name from the dylibs to simplify downstream use
@@ -196,6 +197,11 @@ class GdalConan(ConanFile):
                         cmd = "install_name_tool -id @rpath/{0} {1}".format(name, so_file)
                         os.system(cmd)
 
+
+    def package(self):
+        with tools.chdir(self._folder):
+            with tools.environment_append(self.env_build.vars):
+                self.run('make install', run_environment=True)
 
 
     def package_info(self):
