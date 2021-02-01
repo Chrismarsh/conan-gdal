@@ -106,9 +106,13 @@ class GdalConan(ConanFile):
         config_args += ['--enable-rpath']
 
         if self.options.libcurl:
-                    config_args += ["--with-curl="+self.deps_cpp_info["libcurl"].rootpath+'/bin/curl-config']
+            curl_config = StringIO()
+            self.run('which curl-config', output = curl_config)
+            curl_config=curl_config.getvalue()
+
+            config_args += ["--with-curl="+curl_config]
         else:
-                    config_args += ["--without-curl"]
+            config_args += ["--without-curl"]
 
         config_args += ["--with-proj="+self.deps_cpp_info["proj"].rootpath]
         config_args += ["--without-geos"]

@@ -56,6 +56,10 @@ jobs:
           pip install conan --upgrade
           pip install conan_package_tools
           
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install libcurl4-openssl-dev
+          fi
+          
       - name: env linux
         if: ${{ matrix.cfg.os  == 'ubuntu-latest' }}
         uses: allenevans/set-env@v2.0.0
