@@ -69,7 +69,7 @@ jobs:
         uses: allenevans/set-env@v2.0.0
         with:
           CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.cfg.version }}
-          CONAN_BUILD_POLICY: "gdal,libcurl"
+          CONAN_BUILD_POLICY: "gdal,missing"
 
       - name: Build
         run: |
