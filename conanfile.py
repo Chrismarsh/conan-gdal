@@ -4,7 +4,7 @@ from fnmatch import fnmatch
 from conans.model.version import Version
 from conans import ConanFile, AutoToolsBuildEnvironment, tools, RunEnvironment
 from conans.tools import download, unzip
-
+from six import StringIO
 
 import sys
 
@@ -47,9 +47,6 @@ class GdalConan(ConanFile):
             self.requires("proj/[>=7]@CHM/stable")
 
         self.requires("libiconv/1.15")
-
-        if self.options.libcurl:
-            self.requires("libcurl/[>=7.70.0]")
 
         if self.options.netcdf:
             self.requires("netcdf-c/[>=4.6]@CHM/stable")
