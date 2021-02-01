@@ -105,7 +105,7 @@ class GdalConan(ConanFile):
         if self.options.libcurl:
             curl_config = StringIO()
             self.run('which curl-config', output = curl_config)
-            curl_config=curl_config.getvalue()
+            curl_config=curl_config.getvalue().rstrip()
 
             config_args += ["--with-curl="+curl_config]
         else:
@@ -184,7 +184,7 @@ class GdalConan(ConanFile):
 
                 # use these such that on linux we correctly pass through the LD_LIBRARY_PATH to the child test exes
                 self.run(run_str, run_environment=True)
-                self.run('make -j6', run_environment=True)
+                self.run('make -j2', run_environment=True)
                 
 
 
